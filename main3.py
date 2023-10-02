@@ -10,15 +10,15 @@ def main():
     parser.add_argument('--output-folder', required=True, help='Path to the folder where Excel files will be saved')
     args = parser.parse_args()
     
-    # These are the input and output folder paths
+    ''' These are the input and output folder paths'''
     input_folder_path = args.input_folder
     output_folder_path = args.output_folder
     os.makedirs(output_folder_path, exist_ok=True)
 
-    # Initialize an empty dictionary to store data by language
+    ''' Initialize an empty dictionary to store data by language'''
     data_by_language = {}
 
-    # Load en-US data for reference
+    ''' Load en-US data for reference'''
     en_us_data = {}
     en_us_file_path = os.path.join(input_folder_path, "en-US.jsonl")
     with open(en_us_file_path, "r", encoding="utf-8") as en_us_file:
@@ -29,7 +29,7 @@ def main():
                 "annot_utt_en-US": data["annot_utt"]
             }
 
-    # Iterate through all JSONL files in the folder
+    ''' Iterate through all JSONL files in the folder'''
     for filename in os.listdir(input_folder_path):
         if filename.endswith(".jsonl") and filename != "en-US.jsonl":
             file_path = os.path.join(input_folder_path, filename)
@@ -40,7 +40,7 @@ def main():
                     if language not in data_by_language:
                         data_by_language[language] = []
                     id_value = data["id"]
-                    # Extract and keep only the columns that are needed
+                    ''' Extract and keep only the columns that are needed'''
                     simplified_data = {
                         "id": id_value,
                         f"utt_{language}": data["utt"],
@@ -50,24 +50,8 @@ def main():
                         simplified_data.update(en_us_data[id_value])
                     data_by_language[language].append(simplified_data)
 
-    # # Define a function to create Excel files
-    # def create_excel_file(language, data):
-    #     # Create a DataFrame from the data
-    #     df = pd.DataFrame(data)
-        
-    #     # Output Excel file path
-    #     output_file_path = os.path.join(output_folder_path, f"en-{language}.xlsx")
-        
-    #     # Create an Excel writer
-    #     excel_writer = pd.ExcelWriter(output_file_path, engine="openpyxl")
-        
-    #     # Write DataFrame to the Excel file
-    #     df.to_excel(excel_writer, index=False)
-        
-    #     # Save the Excel file
-    #     excel_writer._save()
 
-    # Create Excel files for each language
+    ''' Create Excel files for each language'''
     for language, data in data_by_language.items():
         create_excel_file(language, data)
 
