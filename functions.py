@@ -4,26 +4,26 @@ import json
 import requests
 from zipfile import ZipFile
 
-
-'''Define a function to create Excel files'''
+ 
+"""Define a function to create Excel files"""
 def create_excel_file(language, data, output_folder_path):
-    '''Create a DataFrame from the data'''
+    """Create a DataFrame from the data"""
     df = pd.DataFrame(data)
 
-    '''Output Excel file path'''
+    """Output Excel file path"""
     output_file_path = os.path.join(output_folder_path, f"en-{language}.xlsx")
 
-    '''Create an Excel writer'''
+    """Create an Excel writer"""
     excel_writer = pd.ExcelWriter(output_file_path, engine="openpyxl")
 
-    '''Write DataFrame to the Excel file'''
+    """Write DataFrame to the Excel file"""
     df.to_excel(excel_writer, index=False)
 
-    '''Save the Excel file'''
+    """Save the Excel file"""
     excel_writer._save()
 
 
-''' This function reads from the en-US file and extracts id, utt, annot_utt'''
+""" This function reads from the en-US file and extracts id, utt, annot_utt"""
 def load_en_us_data(en_us_file_path):
     en_us_data = {}
     with open(en_us_file_path, "r", encoding="utf-8") as en_us_file:
@@ -36,7 +36,7 @@ def load_en_us_data(en_us_file_path):
     return en_us_data
 
 
-'''Iterates through all the files in the input folder and extracts data, defining the language using locale'''
+"""Iterates through all the files in the input folder and extracts data, defining the language using locale"""
 def extract_data_from_jsonl(file_path, en_us_data):
     data_by_language = {}
     with open(file_path, "r", encoding="utf-8") as file:
@@ -60,15 +60,15 @@ def extract_data_from_jsonl(file_path, en_us_data):
 def zip_excel_files(input_excel_path, output_zip_path, zip_file_name):
     zip_file_path = os.path.join(output_zip_path, zip_file_name)
 
-    ''' Get a list of all the Excel files in the input folder '''
+    """ Get a list of all the Excel files in the input folder """
     excel_files = [os.path.join(input_excel_path, file) for file in os.listdir(input_excel_path) if file.endswith(".xlsx")]
 
-    ''' Create a ZipFile object and add the Excel files to it '''
+    """ Create a ZipFile object and add the Excel files to it """
     with ZipFile(zip_file_path, "w") as zip_object:
         for file in excel_files:
             zip_object.write(file, os.path.basename(file))
 
-    ''' Check if the zip file was created '''
+    """ Check if the zip file was created """
     if os.path.exists(zip_file_path):
         print("ZIP file created")
     else:
