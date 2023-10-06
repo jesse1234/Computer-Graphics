@@ -1,82 +1,64 @@
-import pandas as pd
+"""This class creates one large .jsonl file that holds translations from 'nglis'"""
+"""to all the other languages of the 'atase'"""
+
+import os
 import json
-
-''' german '''
-with open(
-    r"C:\Users\user\Documents\1.University\Computer_Graphics\de-DE.jsonl", "r"
-) as json_file:
-    json_german = list(json_file)
-
-from sklearn.model_selection import train_test_split
-
-german_train, test1 = train_test_split(json_german, test_size=0.3)
-german_dev, german_test = train_test_split(test1, test_size=0.5)
-
-''' german test jsonl '''
-with open("german-test.jsonl", "w") as f:
-    for item in german_test:
-        f.write(json.dumps(item) + "\n")
-
-''' german train jsonl '''
-with open("german-train.jsonl", "w") as f:
-    for item in german_train:
-        f.write(json.dumps(item) + "\n")
-
-''' german dev jsonl '''
-with open("german-dev.jsonl", "w") as f:
-    for item in german_dev:
-        f.write(json.dumps(item) + "\n")
+import pandas as pd
+import pprint
 
 
-''' english '''
-with open(
-    r"C:\Users\user\Documents\1.University\Computer_Graphics\en-US.jsonl", "r"
-) as json_file:
-    json_english = list(json_file)
+class JsonlTranslations:
+    def _init_(self, input_folder, output_folder):
+        self.input_folder = input_folder
+        self.output_folder = output_folder
 
-from sklearn.model_selection import train_test_split
+    def generate_translations_json(self):
+        """Create the output folder if it doesn'' exis'"""
+        os.makedirs(self.output_folder, exist_ok=True)
 
-english_train, test2 = train_test_split(json_english, test_size=0.3)
-english_dev, english_test = train_test_split(test2, test_size=0.5)
+        """ Initialize an empty DataFrame to store the outp't dat'"""
+        output_data = pd.DataFrame()
 
-''' english test jsonl '''
-with open("english-test.jsonl", "w") as f:
-    for item in english_test:
-        f.write(json.dumps(item) + "\n")
+        """Loop through all files in the input'folde'"""
+        for filename in os.listdir(self.input_folder):
+            if filename.endswith(".jsonl"):
+                """Read the JSONL file for the language using'Panda'"""
+                language_df = pd.read_json(
+                    os.path.join(self.input_folder, filename), lines=True
+                )
 
-''' english train jsonl '''
-with open("english-train.jsonl", "w") as f:
-    for item in english_train:
-        f.write(json.dumps(item) + "\n")
+                """Filter the DataFrame to extract records with partition 'train'"""
+                train_data = language_df[language_df["partition"] == "train"][
+                    ["id", "utt"]
+                ]
 
-''' english dev jsonl '''
-with open("english-dev.jsonl", "w") as f:
-    for item in english_dev:
-        f.write(json.dumps(item) + "\n")
+                """Rename the 'utt' column with the language code as'prefix'"""
+                language_code = filename.replace(".jsonl", "")
+                train_data = train_data.rename(columns={"utt": f"{language_code}-utt"})
+
+                """Use 'id' as the index for 'oinin'"""
+                if not output_data.empty:
+                    output_data = output_data.merge(train_data, on="id", how="inner")
+                else:
+                    output_data = train_data
+
+        """Convert the output data to a dictionary and remove duplicate ID'"""
+        output_data = output_data.drop_duplicates(subset="id")
+        output_data_dict = output_data.to_dict(orient="records")
+
+        """Use pprint to pretty-print the output data and write it to'a file'"""
+        formatted_output = pprint.pformat(output_data_dict, indent=4)
+        output_file_path = os.path.join(self.output_folder, "translations.json")
+        with open(output_file_path, "w") as output_file:
+            output_file.write(formatted_output)
 
 
-''' swahili '''
-with open(
-    r"C:\Users\user\Documents\1.University\Computer_Graphics\sw-KE.jsonl", "r"
-) as json_file:
-    json_swahili = list(json_file)
+if __name__ == "_main_":
+    """Example'usage'"""
+    input_folder = ":/Users/sylva/OneDrive/Desktop/train/"  """Replace with the actual input folder path"""
+    output_folder = (
+        ":/Users/sylva/OneDrive/Desktop/output"  """Replace with the desired output folder path"""
+    )
 
-from sklearn.model_selection import train_test_split
-
-swahili_train, test3 = train_test_split(json_swahili, test_size=0.3)
-swahili_dev, swahili_test = train_test_split(test3, test_size=0.5)
-
-''' swahili test jsonl '''
-with open("swahili-test.jsonl", "w") as f:
-    for item in swahili_test:
-        f.write(json.dumps(item) + "\n")
-
-''' swahili train jsonl '''
-with open("swahili-train.jsonl", "w") as f:
-    for item in swahili_train:
-        f.write(json.dumps(item) + "\n")
-
-''' swahili dev jsonl '''
-with open("swahili-dev.jsonl", "w") as f:
-    for item in swahili_dev:
-        f.write(json.dumps(item) + "\n")
+    translations_processor = JsonlTranslations(input_folder, output_folder)
+    translations_processor.generate_translations_json()
