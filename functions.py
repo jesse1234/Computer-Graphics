@@ -1,6 +1,8 @@
 import os
 import pandas as pd
 import json
+import requests
+from zipfile import ZipFile
 
 
 '''Define a function to create Excel files'''
@@ -54,3 +56,36 @@ def extract_data_from_jsonl(file_path, en_us_data):
             data_by_language[language].append(simplified_data)
 
     return data_by_language
+
+def zip_excel_files(input_excel_path, output_zip_path, zip_file_name):
+    zip_file_path = os.path.join(output_zip_path, zip_file_name)
+
+    ''' Get a list of all the Excel files in the input folder '''
+    excel_files = [os.path.join(input_excel_path, file) for file in os.listdir(input_excel_path) if file.endswith(".xlsx")]
+
+    ''' Create a ZipFile object and add the Excel files to it '''
+    with ZipFile(zip_file_path, "w") as zip_object:
+        for file in excel_files:
+            zip_object.write(file, os.path.basename(file))
+
+    ''' Check if the zip file was created '''
+    if os.path.exists(zip_file_path):
+        print("ZIP file created")
+    else:
+        print("ZIP file not created")
+
+def google_drive_upload(access_token, upload_file_path, output_file_name):
+    headers = {"Authorization": f"Bearer {access_token}"}
+    url = "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart"
+
+    files = {"data": ("metadata", json.dumps({"name": output_file_name}), "application/json; charset=UTF-8"),
+             "file": ("application/zip", open(upload_file_path, "rb"))}
+
+    response = requests.post(url, headers=headers, files=files)
+
+    if response.status_code == 200:
+        print("File uploaded successfully!")
+    else:
+        print("Error uploading file.")        
+
+      

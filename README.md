@@ -29,6 +29,10 @@ The dependencies for this project include:
 **scikit-learn**: A machine learning library for data processing, modeling, and evaluation.
 
 **pandas**: A powerful data manipulation and analysis library.
+
+**google-auth-oauthlib**: Google authentication library for OAuth.
+
+**pydrive**: A Python library to interact with Google Drive.
 ```Miniconda Prompt
 conda install package_name
 ```
