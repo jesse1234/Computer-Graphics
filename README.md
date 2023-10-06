@@ -50,5 +50,10 @@ The project follows the structure commonly used in PyCharm and Visual Studio Cod
 ```
 This command executes the python scripts.
 
-
+### 6. Project Backup
+- Backup of project results found in the following Google Drive 
+```
+https://drive.google.com/drive/folders/1gxKmNQ1hraLTU5L1C2qJ_KsaCy8rmgYW?usp=sharing
+```
+This link contains the backup of the project.
 
